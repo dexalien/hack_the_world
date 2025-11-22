@@ -1,14 +1,13 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useRouter } from "next/router"
+import { Checkbox } from "@/components/ui/checkbox"
+import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 
 interface HackerHouse {
   id: number
@@ -24,6 +23,7 @@ interface HackerHouse {
   requiredSkills: string[]
   requiredPOAPs: string[]
   joinRequestsOpen: boolean
+  createdByUser?: boolean
 }
 
 interface MatchedHacker {
@@ -101,6 +101,7 @@ export default function HackerHousesPage() {
       requiredSkills: newHouse.requiredSkills,
       requiredPOAPs: newHouse.requiredPOAPs,
       joinRequestsOpen: true,
+      createdByUser: true,
     }
 
     const updatedHouses = [...houses, house]
@@ -117,10 +118,10 @@ export default function HackerHousesPage() {
       name: "",
       location: "New York",
       price: "",
-      priceType: "week",
+      priceType: "week" as "total" | "week" | "month",
       maxMembers: 4,
-      requiredSkills: [],
-      requiredPOAPs: [],
+      requiredSkills: [] as string[],
+      requiredPOAPs: [] as string[],
     })
   }
 
@@ -206,13 +207,13 @@ export default function HackerHousesPage() {
   return (
     <div className="min-h-screen bg-[#0a0a1f] relative overflow-hidden">
       <div
-        className="absolute inset-0 opacity-5 pointer-events-none"
+        className="absolute inset-0 opacity-10 pointer-events-none"
         style={{
           backgroundImage: `
-            linear-gradient(90deg, rgba(0, 255, 136, 0.3) 1px, transparent 1px),
-            linear-gradient(rgba(0, 255, 136, 0.3) 1px, transparent 1px)
+            linear-gradient(90deg, rgba(0, 255, 136, 0.4) 1px, transparent 1px),
+            linear-gradient(rgba(0, 255, 136, 0.4) 1px, transparent 1px)
           `,
-          backgroundSize: "50px 50px",
+          backgroundSize: "20px 20px",
           animation: "gridMove 20s linear infinite",
         }}
       />
@@ -220,11 +221,9 @@ export default function HackerHousesPage() {
       <div className="relative z-20 bg-gradient-to-b from-[#0a0a1f] via-[#0a0a1f]/95 to-transparent py-4 px-4 md:px-8 border-b border-cyan-500/30">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-3">
-            <Link href="/world/matches">
-              <Button className="bg-[#1a1a3f] hover:bg-[#252550] border-2 border-cyan-500 text-cyan-300 font-mono text-sm">
-                ← Back
-              </Button>
-            </Link>
+            <Button className="bg-[#1a1a3f] hover:bg-[#252550] border-2 border-cyan-500 text-cyan-300 font-mono text-sm">
+              ← Back
+            </Button>
             {acceptedMatches.length > 0 && (
               <Button
                 onClick={() => setShowCreateModal(true)}
@@ -243,54 +242,189 @@ export default function HackerHousesPage() {
         </div>
       </div>
 
-      <div className="relative z-10 h-[calc(100vh-160px)] md:h-[calc(100vh-180px)]">
-        {/* Night city background */}
+      {/* Side-scrolling cyberpunk city exploration */}
+      <div className="relative h-[calc(100vh-120px)] overflow-hidden">
         <div
           ref={scrollContainerRef}
           className="h-full overflow-x-auto overflow-y-hidden scrollbar-hide relative"
           style={{
-            backgroundImage: `linear-gradient(180deg, #0d1b2a 0%, #1b263b 30%, #2d4356 60%, #1a3a2d 100%)`,
+            backgroundImage: `linear-gradient(180deg, #0d0d2b 0%, #1a1a3e 20%, #0d1b2a 50%, #1b263b 80%, #1a2332 100%)`,
           }}
         >
-          {/* Starry sky effect */}
-          <div className="absolute inset-0 opacity-30 pointer-events-none">
-            {[...Array(50)].map((_, i) => (
+          {/* Starry pixel sky */}
+          <div className="absolute inset-0 opacity-40 pointer-events-none">
+            {[...Array(100)].map((_, i) => (
               <div
                 key={i}
-                className="absolute bg-white rounded-full animate-pulse"
+                className="absolute bg-white"
                 style={{
-                  width: `${Math.random() * 3}px`,
-                  height: `${Math.random() * 3}px`,
-                  top: `${Math.random() * 50}%`,
+                  width: `${Math.random() > 0.5 ? 2 : 1}px`,
+                  height: `${Math.random() > 0.5 ? 2 : 1}px`,
+                  top: `${Math.random() * 60}%`,
                   left: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 3}s`,
+                  opacity: Math.random(),
+                  animation: `pulse ${2 + Math.random() * 3}s ease-in-out infinite`,
+                  animationDelay: `${Math.random() * 2}s`,
                 }}
               />
             ))}
           </div>
 
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Far background buildings - pixelated silhouettes */}
+            <div className="absolute bottom-32 left-0 w-full h-64 opacity-30">
+              {/* Tall building 1 */}
+              <div className="absolute left-[10%] bottom-0 w-20 h-48 bg-gradient-to-t from-purple-900/80 to-purple-700/60 border-2 border-purple-500/30">
+                {/* Windows */}
+                {[...Array(8)].map((_, row) =>
+                  [...Array(3)].map((_, col) => (
+                    <div
+                      key={`${row}-${col}`}
+                      className="absolute w-2 h-2 bg-yellow-300/70"
+                      style={{
+                        left: `${col * 6 + 4}px`,
+                        top: `${row * 6 + 4}px`,
+                        animation:
+                          Math.random() > 0.7 ? `pulse ${2 + Math.random() * 2}s ease-in-out infinite` : "none",
+                      }}
+                    />
+                  )),
+                )}
+                {/* Antenna */}
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-1 h-8 bg-purple-400/50" />
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+              </div>
+
+              {/* Wide building 2 */}
+              <div className="absolute left-[25%] bottom-0 w-32 h-40 bg-gradient-to-t from-cyan-900/80 to-cyan-700/60 border-2 border-cyan-500/30">
+                {[...Array(7)].map((_, row) =>
+                  [...Array(6)].map((_, col) => (
+                    <div
+                      key={`${row}-${col}`}
+                      className="absolute w-2 h-2 bg-cyan-300/60"
+                      style={{
+                        left: `${col * 5 + 4}px`,
+                        top: `${row * 5 + 4}px`,
+                      }}
+                    />
+                  )),
+                )}
+              </div>
+
+              {/* Tall building 3 */}
+              <div className="absolute left-[45%] bottom-0 w-24 h-56 bg-gradient-to-t from-pink-900/80 to-pink-700/60 border-2 border-pink-500/30">
+                {[...Array(10)].map((_, row) =>
+                  [...Array(4)].map((_, col) => (
+                    <div
+                      key={`${row}-${col}`}
+                      className="absolute w-2 h-2 bg-pink-300/70"
+                      style={{
+                        left: `${col * 5 + 4}px`,
+                        top: `${row * 5 + 4}px`,
+                        animation:
+                          Math.random() > 0.8 ? `pulse ${1.5 + Math.random() * 2}s ease-in-out infinite` : "none",
+                      }}
+                    />
+                  )),
+                )}
+              </div>
+
+              {/* Building 4 */}
+              <div className="absolute left-[65%] bottom-0 w-28 h-44 bg-gradient-to-t from-indigo-900/80 to-indigo-700/60 border-2 border-indigo-500/30">
+                {[...Array(8)].map((_, row) =>
+                  [...Array(5)].map((_, col) => (
+                    <div
+                      key={`${row}-${col}`}
+                      className="absolute w-2 h-2 bg-indigo-300/60"
+                      style={{
+                        left: `${col * 5 + 4}px`,
+                        top: `${row * 5 + 4}px`,
+                      }}
+                    />
+                  )),
+                )}
+              </div>
+
+              {/* Building 5 */}
+              <div className="absolute left-[85%] bottom-0 w-20 h-52 bg-gradient-to-t from-green-900/80 to-green-700/60 border-2 border-green-500/30">
+                {[...Array(9)].map((_, row) =>
+                  [...Array(3)].map((_, col) => (
+                    <div
+                      key={`${row}-${col}`}
+                      className="absolute w-2 h-2 bg-green-300/60"
+                      style={{
+                        left: `${col * 6 + 4}px`,
+                        top: `${row * 5 + 4}px`,
+                      }}
+                    />
+                  )),
+                )}
+              </div>
+            </div>
+
+            {/* Neon signs and holographic effects */}
+            <div className="absolute top-24 left-[15%] text-xs font-bold text-cyan-400 opacity-70 animate-pulse border-2 border-cyan-400/50 px-2 py-1 bg-cyan-950/80">
+              CYBER CAFE
+            </div>
+            <div className="absolute top-32 left-[50%] text-xs font-bold text-pink-400 opacity-70 animate-pulse border-2 border-pink-400/50 px-2 py-1 bg-pink-950/80">
+              HACKERSPACE
+            </div>
+            <div className="absolute top-20 left-[75%] text-xs font-bold text-purple-400 opacity-70 animate-pulse border-2 border-purple-400/50 px-2 py-1 bg-purple-950/80">
+              DEV ZONE
+            </div>
+
+            {/* Floating particles/digital rain effect */}
+            <div className="absolute inset-0 opacity-20">
+              {[...Array(30)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute text-green-400 text-xs font-mono"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animation: `float ${5 + Math.random() * 10}s linear infinite`,
+                    animationDelay: `${Math.random() * 5}s`,
+                  }}
+                >
+                  {Math.random() > 0.5 ? "01" : "10"}
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Scrollable world container */}
           <div className="h-full relative" style={{ width: `${houses.length * 450 + 1000}px`, minWidth: "200vw" }}>
-            {/* Ground layer */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#1a3a2d] to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 h-24 bg-[#1a3a2d] border-t-4 border-[#00ff88]/20" />
-
-            {/* City lights in background */}
-            <div className="absolute top-10 left-10 w-16 h-32 bg-gradient-to-b from-purple-600/30 to-transparent blur-xl" />
-            <div className="absolute top-20 left-[30%] w-24 h-40 bg-gradient-to-b from-cyan-500/30 to-transparent blur-xl" />
-            <div className="absolute top-5 right-[20%] w-20 h-36 bg-gradient-to-b from-pink-500/30 to-transparent blur-xl" />
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#1a2332] to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-24 bg-[#1a2332] border-t-4 border-[#00ff88]/30">
+              {/* Street lines */}
+              <div className="absolute top-12 left-0 right-0 h-1 bg-yellow-400/30" />
+              {/* Dashed center line */}
+              <div className="absolute top-12 left-0 right-0 h-1 flex">
+                {[...Array(50)].map((_, i) => (
+                  <div key={i} className="w-8 h-1 bg-yellow-400/50 mr-4" />
+                ))}
+              </div>
+            </div>
 
             {/* Hacker House Cards floating in the night city */}
-            {houses.map((house, idx) => (
-              <div
-                key={house.id}
-                className="absolute bottom-28 md:bottom-32 transition-all duration-300"
-                style={{ left: `${300 + idx * 450}px` }}
-              >
+            <div className="absolute bottom-32 left-20 right-0 flex gap-8 items-end pb-8">
+              {houses.map((house) => (
                 <div
-                  className="cursor-pointer transform hover:scale-105 hover:-translate-y-2 transition-all w-72 md:w-80"
+                  key={house.id}
                   onClick={() => setSelectedHouse(house)}
+                  className={`
+                    relative flex-shrink-0 w-[400px] md:w-[500px] bg-gradient-to-br from-[#1a1a3f] to-[#0f0f2a] 
+                    border-4 rounded-xl p-6 cursor-pointer
+                    transition-all duration-300 hover:scale-105 hover:shadow-2xl
+                    ${house.createdByUser ? "border-[#00ff88] shadow-[0_0_30px_rgba(0,255,136,0.5)]" : "border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.4)]"}
+                  `}
                 >
+                  {house.createdByUser && (
+                    <div className="absolute -top-3 -right-3 bg-gradient-to-r from-[#00ff88] to-cyan-500 text-[#0a0a1f] px-4 py-1 rounded-full font-mono text-xs font-bold shadow-lg animate-pulse">
+                      YOUR HOUSE
+                    </div>
+                  )}
+
                   {/* Floating glow effect */}
                   <div className="absolute -inset-4 bg-purple-500/20 rounded-2xl blur-2xl animate-pulse" />
 
@@ -380,13 +514,13 @@ export default function HackerHousesPage() {
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
 
-            {/* Cat explorer character */}
+            {/* Cat Character */}
             <div
-              className="absolute bottom-20 md:bottom-24 transition-all duration-700 ease-out z-30"
-              style={{ left: `${150 + catPosition}px` }}
+              className="absolute bottom-28 transition-all duration-500 z-20"
+              style={{ left: `${catPosition + 50}px` }}
             >
               <div className="relative">
                 {/* Shadow */}
@@ -401,47 +535,23 @@ export default function HackerHousesPage() {
                 </div>
               </div>
             </div>
-
-            {/* Decorative trees */}
-            {[...Array(houses.length + 3)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute bottom-24 opacity-60"
-                style={{
-                  left: `${50 + i * 380}px`,
-                  transform: `scale(${0.8 + Math.random() * 0.4})`,
-                }}
-              >
-                <div className="text-4xl md:text-5xl">🌲</div>
-              </div>
-            ))}
-
-            {/* Street lamps */}
-            {[...Array(Math.floor(houses.length / 2) + 2)].map((_, i) => (
-              <div key={i} className="absolute bottom-24" style={{ left: `${200 + i * 800}px` }}>
-                <div className="relative">
-                  <div className="w-2 h-20 bg-gray-600 mx-auto" />
-                  <div className="w-6 h-6 bg-yellow-400 rounded-full mx-auto shadow-[0_0_30px_rgba(250,204,21,0.8)] animate-pulse" />
-                </div>
-              </div>
-            ))}
           </div>
-        </div>
 
-        {/* Movement controls */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-40">
-          <Button
-            onClick={() => moveCat("left")}
-            className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500 text-[#0a0a1f] font-bold text-2xl md:text-3xl shadow-[0_0_30px_rgba(6,182,212,0.8)] border-4 border-cyan-300 transition-all hover:scale-110"
-          >
-            ←
-          </Button>
-          <Button
-            onClick={() => moveCat("right")}
-            className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500 text-[#0a0a1f] font-bold text-2xl md:text-3xl shadow-[0_0_30px_rgba(6,182,212,0.8)] border-4 border-cyan-300 transition-all hover:scale-110"
-          >
-            →
-          </Button>
+          {/* Movement controls */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-40">
+            <Button
+              onClick={() => moveCat("left")}
+              className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500 text-[#0a0a1f] font-bold text-2xl md:text-3xl shadow-[0_0_30px_rgba(6,182,212,0.8)] border-4 border-cyan-300 transition-all hover:scale-110"
+            >
+              ←
+            </Button>
+            <Button
+              onClick={() => moveCat("right")}
+              className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500 text-[#0a0a1f] font-bold text-2xl md:text-3xl shadow-[0_0_30px_rgba(6,182,212,0.8)] border-4 border-cyan-300 transition-all hover:scale-110"
+            >
+              →
+            </Button>
+          </div>
         </div>
       </div>
 

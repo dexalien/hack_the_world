@@ -16,6 +16,17 @@ interface Message {
   timestamp: Date
 }
 
+interface AnimatedCat {
+  id: number
+  avatar: string
+  x: number
+  y: number
+  direction: "left" | "right"
+  speed: number
+  message: string
+  showMessage: boolean
+}
+
 export default function HackerHouseRoom() {
   const params = useParams()
   const router = useRouter()
@@ -26,6 +37,13 @@ export default function HackerHouseRoom() {
   const [videoOn, setVideoOn] = useState(true)
   const [audioOn, setAudioOn] = useState(true)
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  const [animatedCats, setAnimatedCats] = useState<AnimatedCat[]>([
+    { id: 1, avatar: "🐱", x: 10, y: 60, direction: "right", speed: 0.3, message: "meow!", showMessage: false },
+    { id: 2, avatar: "🐈", x: 70, y: 40, direction: "left", speed: 0.25, message: "nya~", showMessage: false },
+    { id: 3, avatar: "😺", x: 40, y: 70, direction: "right", speed: 0.35, message: "mrow?", showMessage: false },
+    { id: 4, avatar: "😸", x: 90, y: 50, direction: "left", speed: 0.2, message: "purr", showMessage: false },
+  ])
 
   // Mock house data - in production would fetch from API
   const house = {
@@ -44,6 +62,39 @@ export default function HackerHouseRoom() {
       { user: "Luna", message: "hello", color: "orange" },
     ],
   }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAnimatedCats((cats) =>
+        cats.map((cat) => {
+          let newX = cat.x
+          let newDirection = cat.direction
+
+          // Move cat
+          if (cat.direction === "right") {
+            newX += cat.speed
+            if (newX > 95) newDirection = "left"
+          } else {
+            newX -= cat.speed
+            if (newX < 5) newDirection = "right"
+          }
+
+          // Random meowing
+          const shouldShowMessage = Math.random() < 0.01
+          const showMessage = shouldShowMessage ? true : cat.showMessage && Math.random() < 0.9
+
+          return {
+            ...cat,
+            x: newX,
+            direction: newDirection,
+            showMessage,
+          }
+        }),
+      )
+    }, 50)
+
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -97,16 +148,36 @@ export default function HackerHouseRoom() {
 
   return (
     <div className="min-h-screen bg-[#0a0118] relative overflow-hidden">
-      {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-blue-900/20" />
-      <div className="absolute inset-0 bg-[url('/circuit-pattern.jpg')] opacity-5" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#1a0b2e] to-[#0a0118]" />
 
       <div className="relative z-10 h-screen flex">
         {/* Main room area */}
         <div className="flex-1 flex flex-col">
           {/* Room scene */}
-          <div className="flex-1 relative">
-            <img src="/images/image.png" alt="Hacker House Interior" className="w-full h-full object-cover" />
+          <div className="flex-1 relative bg-gradient-to-b from-purple-900/10 to-transparent">
+            {animatedCats.map((cat) => (
+              <div
+                key={cat.id}
+                className="absolute transition-all duration-100 ease-linear"
+                style={{
+                  left: `${cat.x}%`,
+                  top: `${cat.y}%`,
+                  transform: cat.direction === "left" ? "scaleX(-1)" : "scaleX(1)",
+                }}
+              >
+                <div className="relative">
+                  <div className="text-6xl animate-bounce" style={{ animationDuration: "1.5s" }}>
+                    {cat.avatar}
+                  </div>
+                  {cat.showMessage && (
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-purple-600/90 border border-purple-400 rounded-lg px-3 py-1 whitespace-nowrap animate-pulse">
+                      <div className="text-white font-mono text-xs">{cat.message}</div>
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-purple-600/90 rotate-45 border-r border-b border-purple-400" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
 
             {/* Overlay controls at bottom */}
             <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
