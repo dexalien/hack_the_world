@@ -141,10 +141,21 @@ function HackersContent() {
   }, [city])
 
   const handleInvite = (hacker: HackerProfile) => {
+    const requests = JSON.parse(localStorage.getItem("matchRequests") || "[]")
+    const newRequest = {
+      id: Date.now(),
+      hacker,
+      status: "pending",
+      timestamp: new Date().toISOString(),
+    }
+    requests.push(newRequest)
+    localStorage.setItem("matchRequests", JSON.stringify(requests))
+
     toast({
-      title: "Invitation Sent!",
-      description: `Sent team invitation to ${hacker.name}`,
+      title: "Match Request Sent!",
+      description: `Sent match request to ${hacker.name}`,
     })
+    setSelectedHacker(null)
   }
 
   return (
@@ -171,6 +182,11 @@ function HackersContent() {
             <Link href="/world">
               <Button className="bg-[#1a1a3f] hover:bg-[#252550] border-2 border-cyan-500 text-cyan-300 font-mono text-sm">
                 ← Back to Map
+              </Button>
+            </Link>
+            <Link href="/world/matches">
+              <Button className="bg-[#1a1a3f] hover:bg-[#252550] border-2 border-purple-500 text-purple-300 font-mono text-sm">
+                My Matches 🤝
               </Button>
             </Link>
             <div className="text-right">
@@ -392,7 +408,7 @@ function HackersContent() {
                   onClick={() => handleInvite(selectedHacker)}
                   className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 text-white font-mono text-lg font-bold py-6 rounded shadow-[0_0_30px_rgba(168,85,247,0.6)] hover:shadow-[0_0_40px_rgba(168,85,247,0.8)] transition-all uppercase tracking-wider"
                 >
-                  INVITE TO HOUSE
+                  REQUEST MATCH
                 </Button>
               </div>
             </div>

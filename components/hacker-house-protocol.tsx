@@ -219,6 +219,13 @@ export function HackerHouseProtocol() {
               <a href="/world">Continue to World</a>
             </Button>
           </div>
+
+          <Button
+            asChild
+            className="w-full bg-[#0a0a1f] hover:bg-[#1a1a3f] border-2 border-[#00ff88] text-[#00ff88] font-mono text-xs h-10 rounded-lg shadow-[0_0_15px_rgba(0,255,136,0.2)] hover:shadow-[0_0_25px_rgba(0,255,136,0.4)] transition-all"
+          >
+            <a href="/world/matches">🤝 My Matches</a>
+          </Button>
         </div>
 
         {/* Decorative Elements */}

@@ -129,3 +129,14 @@
     letter-spacing: 0.1em;
   }
 }
+
+/* Add scrollbar hide utility for mobile side-scrolling */
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
